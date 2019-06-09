@@ -1,9 +1,5 @@
-import sys
-
-import collections
 import re
-
-Token = collections.namedtuple("Token", ["type", "value"])
+import sys
 
 
 def get_number(line: str):
@@ -13,7 +9,7 @@ def get_number(line: str):
         return int(line)
 
 
-def tokenize(code):
+def solve(code):
     pow_0 = 0
     pow_1 = 0
     pow_2 = 0
@@ -32,17 +28,21 @@ def tokenize(code):
         kind = mo.lastgroup
         value = mo.group()
         if kind == "EXPR":
-            if mo.group('sign') == "=":
+            if mo.group("sign") == "=":
                 right_side = True
 
-            number = get_number(mo.group('number'))
-            sign_multiplicator = (mo.group('sign') == '-') + right_side
+            number = get_number(mo.group("number"))
+            sign_multiplicator = (mo.group("sign") == "-") + right_side
 
-            if not mo.group('var') or (mo.group('power') and int(mo.group('power')) == 0):
+            if not mo.group("var") or (
+                mo.group("power") and int(mo.group("power")) == 0
+            ):
                 pow_0 = pow_0 + (number * pow(-1, sign_multiplicator))
-            elif mo.group('var') and (not mo.group('power') or int(mo.group('power')) == 1):
+            elif mo.group("var") and (
+                not mo.group("power") or int(mo.group("power")) == 1
+            ):
                 pow_1 = pow_1 + (number * pow(-1, sign_multiplicator))
-            elif mo.group('var') and mo.group('power') and int(mo.group('power')) == 2:
+            elif mo.group("var") and mo.group("power") and int(mo.group("power")) == 2:
                 pow_2 = pow_2 + (number * pow(-1, sign_multiplicator))
         elif kind == "MISMATCH":
             print(f"Unexpected value: {value!r}")
@@ -56,4 +56,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         quit("You should provide exactly 1 argument!")
 
-    tokenize(sys.argv[1].lower().replace(" ", ""))
+    solve(sys.argv[1].lower().replace(" ", ""))
