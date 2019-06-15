@@ -70,6 +70,12 @@ def solve(code: str):
     coeffs = get_coeffs(code)
     print_reduced_form(coeffs)
 
+    degree = max(coeffs)[0]
+    print(f"Polynomial degree: {degree}")
+    if degree > 2:
+        print("The polynomial degree is strictly greater than 2, I can't solve.")
+        return
+
 
 if __name__ == "__main__":
     """Entry point"""
