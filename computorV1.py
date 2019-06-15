@@ -25,7 +25,7 @@ def get_number(line: str):
         return int(line)
 
 
-def solve(code):
+def get_coeffs(code: str) -> List:
     right_side = False
     coeffs = {}
 
@@ -61,7 +61,11 @@ def solve(code):
             print(f"Unexpected value: {value!r}")
             return
 
-    coeffs = sorted({k: v for k, v in coeffs.items() if v != 0}.items())
+    return sorted({k: v for k, v in coeffs.items() if v != 0}.items())
+
+
+def solve(code: str):
+    coeffs = get_coeffs(code)
     print_reduced_form(coeffs)
 
 
