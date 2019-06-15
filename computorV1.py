@@ -2,6 +2,15 @@ import re
 import sys
 
 
+def print_reduced_form(pow_0: int, pow_1: int, pow_2: int):
+    # for coeff in coeff
+    # reduced
+    # if pow_0:
+
+    reduced = f"{pow_0} + {pow_1} * X{f' + {pow_2} * X^2' if pow_2 else ''} = 0"
+    print(reduced)
+
+
 def get_number(line: str):
     if not line:
         return 1
@@ -10,10 +19,8 @@ def get_number(line: str):
 
 
 def solve(code):
-    pow_0 = 0
-    pow_1 = 0
-    pow_2 = 0
     right_side = False
+    coeffs = {}
 
     token_specification = [
         (
@@ -24,7 +31,6 @@ def solve(code):
     ]
     tok_regex = "|".join("(?P<%s>%s)" % pair for pair in token_specification)
     for mo in re.finditer(tok_regex, code):
-        # print(mo.groups())
         kind = mo.lastgroup
         value = mo.group()
         if kind == "EXPR":
@@ -32,23 +38,25 @@ def solve(code):
                 right_side = True
 
             number = get_number(mo.group("number"))
-            sign_multiplicator = (mo.group("sign") == "-") + right_side
+            if number:
+                sign_multiplicator = (mo.group("sign") == "-") + right_side
+                power = 0
+                if mo.group("var"):
+                    power = 1 if not mo.group(
+                        "power") else int(mo.group("power"))
 
-            if not mo.group("var") or (
-                mo.group("power") and int(mo.group("power")) == 0
-            ):
-                pow_0 = pow_0 + (number * pow(-1, sign_multiplicator))
-            elif mo.group("var") and (
-                not mo.group("power") or int(mo.group("power")) == 1
-            ):
-                pow_1 = pow_1 + (number * pow(-1, sign_multiplicator))
-            elif mo.group("var") and mo.group("power") and int(mo.group("power")) == 2:
-                pow_2 = pow_2 + (number * pow(-1, sign_multiplicator))
+                if coeffs.get(power):
+                    coeffs[power] += (number * pow(-1, sign_multiplicator))
+                else:
+                    coeffs[power] = (number * pow(-1, sign_multiplicator))
+
         elif kind == "MISMATCH":
             print(f"Unexpected value: {value!r}")
             return
 
-    print(pow_0, pow_1, pow_2)
+    coeffs = sorted(coeffs.items())
+    print(coeffs)
+#    print_reduced_form(pow_0, pow_1, pow_2)
 
 
 if __name__ == "__main__":
