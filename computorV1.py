@@ -49,13 +49,12 @@ def get_coeffs(code: str) -> List:
                 sign_multiplicator = (mo.group("sign") == "-") + right_side
                 power = 0
                 if mo.group("var"):
-                    power = 1 if not mo.group(
-                        "power") else int(mo.group("power"))
+                    power = 1 if not mo.group("power") else int(mo.group("power"))
 
                 if coeffs.get(power):
-                    coeffs[power] += (number * pow(-1, sign_multiplicator))
+                    coeffs[power] += number * pow(-1, sign_multiplicator)
                 else:
-                    coeffs[power] = (number * pow(-1, sign_multiplicator))
+                    coeffs[power] = number * pow(-1, sign_multiplicator)
 
         elif kind == "MISMATCH":
             print(f"Unexpected value: {value!r}")
