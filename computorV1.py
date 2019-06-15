@@ -1,13 +1,20 @@
 import re
 import sys
+from typing import List
 
 
-def print_reduced_form(pow_0: int, pow_1: int, pow_2: int):
-    # for coeff in coeff
-    # reduced
-    # if pow_0:
-
-    reduced = f"{pow_0} + {pow_1} * X{f' + {pow_2} * X^2' if pow_2 else ''} = 0"
+def print_reduced_form(coeffs: List):
+    reduced = ""
+    for coeff in coeffs:
+        sign = " + " if coeff[1] > 0 else " - "
+        number = abs(coeff[1])
+        if coeffs.index(coeff) == 0:
+            sign = ""
+            number = coeff[1]
+        var = " * X" if coeff[0] else ""
+        power = f"^{coeff[0]}" if coeff[0] > 1 else ""
+        reduced += f"{sign}{number}{var}{power}"
+    reduced += " = 0"
     print(reduced)
 
 
@@ -54,9 +61,8 @@ def solve(code):
             print(f"Unexpected value: {value!r}")
             return
 
-    coeffs = sorted(coeffs.items())
-    print(coeffs)
-#    print_reduced_form(pow_0, pow_1, pow_2)
+    coeffs = sorted({k: v for k, v in coeffs.items() if v != 0}.items())
+    print_reduced_form(coeffs)
 
 
 if __name__ == "__main__":
