@@ -21,6 +21,8 @@ def print_reduced_form(coeffs: List):
 def get_number(line: str):
     if not line:
         return 1
+    elif "." in line:
+        return float(line)
     else:
         return int(line)
 
@@ -49,7 +51,8 @@ def get_coeffs(code: str) -> List:
                 sign_multiplicator = (mo.group("sign") == "-") + right_side
                 power = 0
                 if mo.group("var"):
-                    power = 1 if not mo.group("power") else int(mo.group("power"))
+                    power = 1 if not mo.group(
+                        "power") else int(mo.group("power"))
 
                 if coeffs.get(power):
                     coeffs[power] += number * pow(-1, sign_multiplicator)
