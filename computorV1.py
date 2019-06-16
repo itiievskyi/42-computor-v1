@@ -33,8 +33,12 @@ def get_coeffs(code: str) -> List:
 
     token_specification = [
         (
-            "EXPR",
-            r"(?P<sign>^|\-|\+|\=){1}((?P<number>\-?[0-9]+(?P<float>\.[0-9]+)?)?((?P<var>\*?x){1}((\^|\*\*)?(?P<power>[0-9]+)?))?){1}",
+            "EXPR_COEFF",
+            r"(?P<sign0>^|\-|\+|\=){1}((?P<number0>\-?[0-9]+(?P<float0>\.[0-9]+)?){1}((?P<var0>\*?x){1}((\^|\*\*)?(?P<power0>[0-9]+)?))?){1}",
+        ),
+        (
+            "EXPR_VAR",
+            r"(?P<sign1>^|\-|\+|\=){1}((?P<number1>\-?[0-9]+(?P<float1>\.[0-9]+)?)?((?P<var1>\*?x){1}((\^|\*\*)?(?P<power1>[0-9]+)?)){1}){1}",
         ),
         ("MISMATCH", r"."),  # Any other character
     ]
@@ -42,17 +46,19 @@ def get_coeffs(code: str) -> List:
     for mo in re.finditer(tok_regex, code):
         kind = mo.lastgroup
         value = mo.group()
-        if kind == "EXPR":
-            if mo.group("sign") == "=":
+        valid_tokens = ["EXPR_COEFF", "EXPR_VAR"]
+        if kind in valid_tokens:
+            if mo.group(f"sign{valid_tokens.index(kind)}") == "=":
                 right_side = True
 
-            number = get_number(mo.group("number"))
+            number = get_number(mo.group(f"number{valid_tokens.index(kind)}"))
             if number:
-                sign_multiplicator = (mo.group("sign") == "-") + right_side
+                sign_multiplicator = (
+                    mo.group(f"sign{valid_tokens.index(kind)}") == "-") + right_side
                 power = 0
-                if mo.group("var"):
+                if mo.group(f"var{valid_tokens.index(kind)}"):
                     power = 1 if not mo.group(
-                        "power") else int(mo.group("power"))
+                        f"power{valid_tokens.index(kind)}") else int(mo.group(f"power{valid_tokens.index(kind)}"))
 
                 if coeffs.get(power):
                     coeffs[power] += number * pow(-1, sign_multiplicator)
@@ -68,6 +74,10 @@ def get_coeffs(code: str) -> List:
 
 def solve(code: str):
     coeffs = get_coeffs(code)
+    if not coeffs:
+        print("Syntax Error!")
+        return
+
     print_reduced_form(coeffs)
 
     degree = max(coeffs)[0]
