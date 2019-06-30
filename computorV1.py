@@ -10,8 +10,8 @@ def print_reduced_form(coeffs: List):
         number = abs(coeff[1]) if abs(coeff[1]) > 1 or not coeff[0] else ""
         if coeffs.index(coeff) == 0:
             sign = "-" * bool(coeff[1] < 0)
-        multiplicator = " * " if abs(coeff[1]) > 1 else ""
         var = "X" if coeff[0] else ""
+        multiplicator = " * " if abs(coeff[1]) > 1 and var else ""
         power = f"^{coeff[0]}" if coeff[0] > 1 else ""
         reduced += f"{sign}{number}{multiplicator}{var}{power}"
     reduced += " = 0"
