@@ -7,13 +7,13 @@ def print_reduced_form(coeffs: List):
     reduced = ""
     for coeff in coeffs:
         sign = " + " if coeff[1] > 0 else " - "
-        number = abs(coeff[1])
+        number = abs(coeff[1]) if abs(coeff[1]) > 1 or not coeff[0] else ""
         if coeffs.index(coeff) == 0:
-            sign = ""
-            number = coeff[1]
-        var = " * X" if coeff[0] else ""
+            sign = "-" * bool(coeff[1] < 0)
+        multiplicator = " * " if abs(coeff[1]) > 1 else ""
+        var = "X" if coeff[0] else ""
         power = f"^{coeff[0]}" if coeff[0] > 1 else ""
-        reduced += f"{sign}{number}{var}{power}"
+        reduced += f"{sign}{number}{multiplicator}{var}{power}"
     reduced += " = 0"
     print(reduced)
 
