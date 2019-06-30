@@ -34,11 +34,11 @@ def get_coeffs(code: str) -> List:
     token_specification = [
         (
             "EXPR_COEFF",
-            r"(?P<sign0>^|\-|\+|\=){1}((?P<number0>\-?[0-9]+(?P<float0>\.[0-9]+)?){1}((?P<var0>\*?x){1}((\^|\*\*)?(?P<power0>[0-9]+)?))?){1}",
+            r"(?P<sign0>^|\-|\+|\=){1}((?P<number0>\-?[0-9]+(?P<float0>\.[0-9]+)?){1}((?P<var0>\*?x){1}((\^|\*\*)?(?P<power0>[0-9]+))?)?){1}",
         ),
         (
             "EXPR_VAR",
-            r"(?P<sign1>^|\-|\+|\=){1}((?P<number1>\-?[0-9]+(?P<float1>\.[0-9]+)?)?((?P<var1>\*?x){1}((\^|\*\*)?(?P<power1>[0-9]+)?)){1}){1}",
+            r"(?P<sign1>^|\-|\+|\=){1}((?P<number1>\-?[0-9]+(?P<float1>\.[0-9]+)?)?((?P<var1>\*?x){1}((\^|\*\*)?(?P<power1>[0-9]+))?){1}){1}",
         ),
         ("MISMATCH", r"."),  # Any other character
     ]
