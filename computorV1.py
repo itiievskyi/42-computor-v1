@@ -63,11 +63,15 @@ def get_coeffs(code: str) -> Optional[List]:
             number = get_number(mo.group(f"number{valid_tokens.index(kind)}"))
             if number:
                 sign_multiplicator = (
-                    mo.group(f"sign{valid_tokens.index(kind)}") == "-") + right_side
+                    mo.group(f"sign{valid_tokens.index(kind)}") == "-"
+                ) + right_side
                 power = 0
                 if mo.group(f"var{valid_tokens.index(kind)}"):
-                    power = 1 if not mo.group(
-                        f"power{valid_tokens.index(kind)}") else int(mo.group(f"power{valid_tokens.index(kind)}"))
+                    power = (
+                        1
+                        if not mo.group(f"power{valid_tokens.index(kind)}")
+                        else int(mo.group(f"power{valid_tokens.index(kind)}"))
+                    )
 
                 if coeffs.get(power):
                     coeffs[power] += number * pow(-1, sign_multiplicator)
