@@ -1,6 +1,6 @@
 import re
 import sys
-from typing import List
+from typing import List, Optional
 
 
 def print_reduced_form(coeffs: List):
@@ -27,11 +27,17 @@ def get_number(line: str):
         return int(line)
 
 
-def get_coeffs(code: str) -> List:
+def get_coeffs(code: str) -> Optional[List]:
     right_side = False
     coeffs = {}
 
+    # check for number of equal signs
+    if code.count("=") != 1:
+        print("Unexpected number of '='.")
+        return
+
     token_specification = [
+        ("WRONG_EQUALS", r"^=.*|.*=^"),
         (
             "EXPR_COEFF",
             r"(?P<sign0>^|\-|\+|\=){1}((?P<number0>\-?[0-9]+(?P<float0>\.[0-9]+)?){1}((?P<var0>\*?x){1}((\^|\*\*)?(?P<power0>[0-9]+))?)?){1}",
@@ -47,7 +53,10 @@ def get_coeffs(code: str) -> List:
         kind = mo.lastgroup
         value = mo.group()
         valid_tokens = ["EXPR_COEFF", "EXPR_VAR"]
-        if kind in valid_tokens:
+        if kind == "WRONG_EQUALS":
+            print("Equal sign is on the wrong place")
+            return
+        elif kind in valid_tokens:
             if mo.group(f"sign{valid_tokens.index(kind)}") == "=":
                 right_side = True
 
