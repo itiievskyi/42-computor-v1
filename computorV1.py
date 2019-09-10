@@ -1,6 +1,8 @@
+import argparse
 import re
-import sys
 from typing import List, Optional
+
+VERBOSE = False
 
 
 def print_reduced_form(coeffs: List):
@@ -37,7 +39,7 @@ def get_coeffs(code: str) -> Optional[List]:
         return
 
     token_specification = [
-        ("WRONG_EQUALS", r"^=.*|.*=^"),
+        ("WRONG_EQUALS", r"^=.*|.*=$"),
         (
             "EXPR_COEFF",
             r"(?P<sign0>^|\-|\+|\=){1}((?P<number0>\-?[0-9]+(?P<float0>\.[0-9]+)?){1}((?P<var0>\*?x){1}((\^|\*\*)?(?P<power0>[0-9]+))?)?){1}",
@@ -102,7 +104,23 @@ def solve(code: str):
 
 if __name__ == "__main__":
     """Entry point"""
-    if len(sys.argv) != 2:
-        quit("You should provide exactly 1 argument!")
+    # setting a parser
+    parser = argparse.ArgumentParser(
+        description="Arguments and options for ComputorV1")
+    parser.add_argument(
+        "expression", help="expression to be evaluated", type=str)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="provides detailed information for evaluation steps",
+    )
 
-    solve(sys.argv[1].lower().replace(" ", ""))
+    # parsing options and arguments
+    args = parser.parse_args()
+
+    # updating global variables based on input
+    VERBOSE = args.verbose
+
+    # starting evaluation
+    solve(args.expression.lower().replace(" ", ""))
