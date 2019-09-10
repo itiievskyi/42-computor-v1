@@ -87,7 +87,8 @@ def get_coeffs(code: str) -> Optional[List]:
     return sorted({k: v for k, v in coeffs.items() if v != 0}.items())
 
 
-def solve(code: str):
+def solve(raw_code: str):
+    code = raw_code.lower().replace(" ", "")
     coeffs = get_coeffs(code)
     if not coeffs:
         print("Syntax Error!")
@@ -123,4 +124,4 @@ if __name__ == "__main__":
     VERBOSE = args.verbose
 
     # starting evaluation
-    solve(args.expression.lower().replace(" ", ""))
+    solve(args.expression)
