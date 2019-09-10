@@ -1,14 +1,14 @@
 import argparse
 import re
-from typing import List, Optional
+from typing import Optional
 
 VERBOSE = False
 
 
-def print_reduced_form(coeffs_all: List):
+def print_reduced_form(coeffs_all: dict):
     reduced = ""
     # filtering for correct output
-    coeffs = [coeff for coeff in coeffs_all if coeff[1] != 0]
+    coeffs = [item for item in coeffs_all.items() if item[1] != 0]
     for coeff in coeffs:
         sign = " + " if coeff[1] > 0 else " - "
         number = abs(coeff[1]) if abs(coeff[1]) > 1 or not coeff[0] else ""
@@ -31,7 +31,7 @@ def get_number(line: str):
         return int(line)
 
 
-def get_coeffs(code: str) -> Optional[List]:
+def get_coeffs(code: str) -> Optional[dict]:
     right_side = False
     coeffs = {}
 
@@ -91,7 +91,10 @@ def get_coeffs(code: str) -> Optional[List]:
         if not coeffs.get(x):
             coeffs[x] = 0
 
-    return sorted({k: v for k, v in coeffs.items()}.items())
+    return dict(sorted({k: v for k, v in coeffs.items()}.items()))
+
+
+# def get_discriminant()
 
 
 def solve(raw_code: str):
@@ -103,11 +106,13 @@ def solve(raw_code: str):
 
     print_reduced_form(coeffs)
 
-    degree = max(coeffs)[0]
+    degree = max(coeffs.keys())
     print(f"Polynomial degree: {degree}")
     if degree > 2:
         print("The polynomial degree is strictly greater than 2, I can't solve.")
         return
+
+    # discriminant = get_discriminant(coeffs)
 
 
 if __name__ == "__main__":
