@@ -94,7 +94,11 @@ def get_coeffs(code: str) -> Optional[dict]:
     return dict(sorted({k: v for k, v in coeffs.items()}.items()))
 
 
-# def get_discriminant()
+def get_discriminant(coeffs: dict) -> int:
+    try:
+        return coeffs[1] ** 2 - 4 * coeffs[2] * coeffs[0]
+    except KeyError:
+        quit("Error during evaluation. Please try again.")
 
 
 def solve(raw_code: str):
@@ -112,7 +116,8 @@ def solve(raw_code: str):
         print("The polynomial degree is strictly greater than 2, I can't solve.")
         return
 
-    # discriminant = get_discriminant(coeffs)
+    discriminant = get_discriminant(coeffs)
+    print(discriminant)
 
 
 if __name__ == "__main__":
