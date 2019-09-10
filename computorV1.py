@@ -113,10 +113,8 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(
-        description="Arguments and options for ComputorV1")
-    parser.add_argument(
-        "expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
+    parser.add_argument("expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
