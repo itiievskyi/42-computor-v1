@@ -5,8 +5,10 @@ from typing import List, Optional
 VERBOSE = False
 
 
-def print_reduced_form(coeffs: List):
+def print_reduced_form(coeffs_all: List):
     reduced = ""
+    # filtering for correct output
+    coeffs = [coeff for coeff in coeffs_all if coeff[1] != 0]
     for coeff in coeffs:
         sign = " + " if coeff[1] > 0 else " - "
         number = abs(coeff[1]) if abs(coeff[1]) > 1 or not coeff[0] else ""
@@ -84,7 +86,12 @@ def get_coeffs(code: str) -> Optional[List]:
             print(f"Unexpected value: {value!r}")
             return
 
-    return sorted({k: v for k, v in coeffs.items() if v != 0}.items())
+    # adding zeros explicitly for missing coeffs
+    for x in range(3):
+        if not coeffs.get(x):
+            coeffs[x] = 0
+
+    return sorted({k: v for k, v in coeffs.items()}.items())
 
 
 def solve(raw_code: str):
