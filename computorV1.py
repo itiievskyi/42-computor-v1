@@ -131,7 +131,7 @@ def get_incomplete_roots(coeffs: dict) -> List:
     elif b and not a and not c:
         return [0]
     elif not any([a, b, c]):
-        return ["any number"]
+        return ["any"]
     return []
 
 
@@ -181,10 +181,8 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(
-        description="Arguments and options for ComputorV1")
-    parser.add_argument(
-        "expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
+    parser.add_argument("expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -220,6 +218,6 @@ if __name__ == "__main__":
     if VERBOSE and LOG.steps:
         print(LOG.steps)
     if roots:
-        print(
+        print("The solution is any real number!") if roots[0] == "any" else print(
             f"""The solution is: {', '.join([f'{root:.6g}'.replace('j', 'i') for root in roots])}"""
         )
