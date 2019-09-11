@@ -1,6 +1,6 @@
 import argparse
 import re
-from typing import Optional
+from typing import List, Optional
 
 VERBOSE = False
 
@@ -101,6 +101,30 @@ def get_discriminant(coeffs: dict) -> int:
         quit("Error during evaluation. Please try again.")
 
 
+def get_incomplete_roots(coeffs: dict) -> List:
+    if not coeffs.get(1) and not coeffs.get(0):
+        return [0]
+    elif not coeffs.get(1) and coeffs.get(0) and coeffs.get(2):
+        if - (coeffs.get(0) / coeffs.get(2)) > 0:
+            return [
+                (- coeffs.get(0) / coeffs.get(2)) ** (1/2),
+                - (- coeffs.get(0) / coeffs.get(2)) ** (1/2)
+            ]
+        else:
+            return []
+    return
+
+
+def get_roots(discriminant: int, coeffs: dict) -> List:
+    if discriminant > 0:  # two solutions
+        return [
+            (- coeffs[1] + discriminant ** (1/2)) / (2 * coeffs[2]),
+            (- coeffs[1] - discriminant ** (1/2)) / (2 * coeffs[2])
+        ]
+    else:
+        return []
+
+
 def solve(raw_code: str):
     code = raw_code.lower().replace(" ", "")
     coeffs = get_coeffs(code)
@@ -116,15 +140,27 @@ def solve(raw_code: str):
         print("The polynomial degree is strictly greater than 2, I can't solve.")
         return
 
-    discriminant = get_discriminant(coeffs)
-    print(discriminant)
+    roots = []
+
+    if not coeffs.get(0, 0) or not coeffs.get(1, 0):
+        # specific cases when simpler approach should be used
+        roots = get_incomplete_roots(coeffs)
+    else:
+        # get discriminant
+        discriminant = get_discriminant(coeffs)
+        # get roots
+        roots = get_roots(discriminant, coeffs)
+
+    print(roots)
 
 
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
-    parser.add_argument("expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(
+        description="Arguments and options for ComputorV1")
+    parser.add_argument(
+        "expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
