@@ -4,30 +4,21 @@ from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum, auto, unique
 
-
-@unique
-class SolutionType(Enum):
-    any_number = auto()
-    no_roots = auto()
-    real_numbers = auto()
-    complex_numbers = auto()
+VERBOSE = False
 
 
 @dataclass
-class Solution:
-    """Class for storing result in different formats"""
-
-    roots: List[float or complex]
-    printable: List[str]
-
-    solution_type: SolutionType = SolutionType.real_numbers
+class SolutionLog:
+    steps: List[str]
+    degree: str = ""
+    reduced: str = ""
+    err: str = ""
 
 
-VERBOSE = False
-FRACTIONS = False
+LOG = SolutionLog(steps=[])
 
 
-def print_reduced_form(coeffs_all: dict):
+def get_reduced_form(coeffs_all: dict):
     reduced = ""
     # filtering for correct output
     coeffs = [item for item in coeffs_all.items() if item[1] != 0]
@@ -40,8 +31,8 @@ def print_reduced_form(coeffs_all: dict):
         multiplicator = " * " if abs(coeff[1]) > 1 and var else ""
         power = f"^{coeff[0]}" if coeff[0] > 1 else ""
         reduced += f"{sign}{number}{multiplicator}{var}{power}"
-    reduced += " = 0"
-    print(reduced)
+    reduced = reduced + " = 0" if reduced else "0 = 0"
+    return reduced
 
 
 def get_number(line: str):
@@ -123,30 +114,13 @@ def get_discriminant(coeffs: dict) -> int:
         quit("Error during evaluation. Please try again.")
 
 
-def get_printable_roots(
-    roots: List[complex or float], solution_type: SolutionType
-) -> List[str]:
-    if solution_type == SolutionType.real_numbers:
-        return [str(root) for root in roots]
-    return []
-
-
-def get_incomplete_roots(coeffs: dict) -> Solution:
+def get_incomplete_roots(coeffs: dict) -> List:
     a, b, c = coeffs.get(2), coeffs.get(1), coeffs.get(0)
     if a and not b and not c:
-        roots = [0]
-        return Solution(
-            roots=roots, printable=get_printable_roots(
-                roots, SolutionType.real_numbers)
-        )
+        return [0]
     elif a and c and not b:
         if -(c / a) > 0:
-            roots = [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
-            return Solution(
-                roots=roots,
-                printable=get_printable_roots(
-                    roots, SolutionType.real_numbers),
-            )
+            return [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
         else:
             return []
     elif a and b and not c:
@@ -180,9 +154,9 @@ def solve(raw_code: str):
         print("Syntax Error!")
         return
 
-    print_reduced_form(coeffs)
+    print(get_reduced_form(coeffs))
 
-    degree = max(coeffs.keys())
+    degree = max([k for k, v in coeffs.items() if v] or [0])
     print(f"Polynomial degree: {degree}")
     if degree > 2:
         print("The polynomial degree is strictly greater than 2, I can't solve.")
