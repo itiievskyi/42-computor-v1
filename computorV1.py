@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import Enum, auto, unique
 
 VERBOSE = False
+SILENT = False
 
 
 @dataclass
@@ -12,7 +13,7 @@ class SolutionLog:
     steps: List[str]
     degree: str = ""
     reduced: str = ""
-    err: str = ""
+    error: str = ""
 
 
 LOG = SolutionLog(steps=[])
@@ -50,7 +51,7 @@ def get_coeffs(code: str) -> Optional[dict]:
 
     # check for number of equal signs
     if code.count("=") != 1:
-        print("Unexpected number of '='.")
+        LOG.error = "Unexpected number of '='."
         return
 
     token_specification = [
@@ -71,7 +72,7 @@ def get_coeffs(code: str) -> Optional[dict]:
         value = mo.group()
         valid_tokens = ["EXPR_COEFF", "EXPR_VAR"]
         if kind == "WRONG_EQUALS":
-            print("Syntax error near '='.")
+            LOG.error = "Syntax error near '='."
             return
         elif kind in valid_tokens:
             if mo.group(f"sign{valid_tokens.index(kind)}") in ["=", "=-"]:
@@ -96,7 +97,7 @@ def get_coeffs(code: str) -> Optional[dict]:
                     coeffs[power] = number * pow(-1, sign_multiplicator)
 
         elif kind == "MISMATCH":
-            print(f"Unexpected value: {value!r}")
+            LOG.error = f"Unexpected value: {value!r}"
             return
 
     # adding zeros explicitly for missing coeffs
@@ -107,11 +108,11 @@ def get_coeffs(code: str) -> Optional[dict]:
     return dict(sorted({k: v for k, v in coeffs.items()}.items()))
 
 
-def get_discriminant(coeffs: dict) -> int:
+def get_discriminant(coeffs: dict) -> Optional[int]:
     try:
         return coeffs[1] ** 2 - 4 * coeffs[2] * coeffs[0]
     except KeyError:
-        quit("Error during evaluation. Please try again.")
+        LOG.error = "Error during evaluation. Please try again."
 
 
 def get_incomplete_roots(coeffs: dict) -> List:
@@ -151,15 +152,14 @@ def solve(raw_code: str):
     code = raw_code.lower().replace(" ", "")
     coeffs = get_coeffs(code)
     if not coeffs:
-        print("Syntax Error!")
         return
 
-    print(get_reduced_form(coeffs))
+    LOG.reduced = get_reduced_form(coeffs)
 
     degree = max([k for k, v in coeffs.items() if v] or [0])
-    print(f"Polynomial degree: {degree}")
+    LOG.degree = f"Polynomial degree: {degree}"
     if degree > 2:
-        print("The polynomial degree is strictly greater than 2, I can't solve.")
+        LOG.error = "The polynomial degree is strictly greater than 2, I can't solve."
         return
 
     roots = []
@@ -170,10 +170,12 @@ def solve(raw_code: str):
     else:
         # get discriminant
         discriminant = get_discriminant(coeffs)
+        if not discriminant:
+            return
         # get roots
         roots = get_roots(discriminant, coeffs)
 
-    print(roots)
+    return roots
 
 
 if __name__ == "__main__":
@@ -185,14 +187,27 @@ if __name__ == "__main__":
         "-v",
         "--verbose",
         action="store_true",
-        help="provides detailed information for evaluation steps",
+        help="Provides detailed information for evaluation steps.",
+    )
+    parser.add_argument(
+        "-s",
+        "--silent",
+        action="store_true",
+        help="Mutes all notifications except solution and errors. Overwrites --verbose flag.",
     )
 
     # parsing options and arguments
     args = parser.parse_args()
 
     # updating global variables based on input
-    VERBOSE = args.verbose
+    VERBOSE = args.verbose and not args.silent
+    SILENT = args.silent
 
     # starting evaluation
-    solve(args.expression)
+    roots = solve(args.expression)
+
+    # printing solution with detailed information if needed
+
+    print(
+        f"""The solution is: {', '.join([f'{root:.6g}'.replace('j', 'i') for root in roots])}"""
+    )
