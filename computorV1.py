@@ -7,11 +7,17 @@ from enum import Enum, auto, unique
 VERBOSE = False
 SILENT = False
 
+RESET_COLOR = "\033[0;0m"
+REDUCED_COLOR = "\033[30;33m"
+DEGREE_COLOR = "\033[30;34m"
+ERROR_COLOR = "\033[30;31m"
+SOLUTION_COLOR = "\033[30;32m"
+
 
 @dataclass
 class SolutionLog:
     steps: List[str]
-    degree: str = ""
+    degree: int = 0
     reduced: str = ""
     error: str = ""
 
@@ -51,7 +57,7 @@ def get_coeffs(code: str) -> Optional[dict]:
 
     # check for number of equal signs
     if code.count("=") != 1:
-        LOG.error = "Unexpected number of '='."
+        LOG.error = "Syntax error! Unexpected number of '='."
         return
 
     token_specification = [
@@ -97,7 +103,7 @@ def get_coeffs(code: str) -> Optional[dict]:
                     coeffs[power] = number * pow(-1, sign_multiplicator)
 
         elif kind == "MISMATCH":
-            LOG.error = f"Unexpected value: {value!r}"
+            LOG.error = f"Syntax error! Unexpected value: {value!r}"
             return
 
     # adding zeros explicitly for missing coeffs
@@ -157,7 +163,7 @@ def solve(raw_code: str):
     LOG.reduced = get_reduced_form(coeffs)
 
     degree = max([k for k, v in coeffs.items() if v] or [0])
-    LOG.degree = f"Polynomial degree: {degree}"
+    LOG.degree = degree
     if degree > 2:
         LOG.error = "The polynomial degree is strictly greater than 2, I can't solve."
         return
@@ -181,8 +187,10 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
-    parser.add_argument("expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(
+        description="Arguments and options for ComputorV1")
+    parser.add_argument(
+        "expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -207,17 +215,23 @@ if __name__ == "__main__":
     roots = solve(args.expression)
 
     # printing solution with detailed information if needed
-
     if not SILENT:
         if LOG.reduced:
-            print(LOG.reduced)
+            print(f"Reduced form: {REDUCED_COLOR}{LOG.reduced}{RESET_COLOR}")
         if LOG.degree:
-            print(LOG.degree)
+            print(
+                f"Polynomial degree: {DEGREE_COLOR}{LOG.degree}{RESET_COLOR}")
     if LOG.error:
-        print(LOG.error)
+        print(f"{ERROR_COLOR}{LOG.error}{RESET_COLOR}")
     if VERBOSE and LOG.steps:
         print(LOG.steps)
     if roots:
-        print("The solution is any real number!") if roots[0] == "any" else print(
-            f"""The solution is: {', '.join([f'{root:.6g}'.replace('j', 'i') for root in roots])}"""
+        print(
+            f"The solution is: "
+            f"{SOLUTION_COLOR}"
+            f"{'any real number' if roots[0] == 'any' else ', '.join([f'{root:.6g}'.replace('j', 'i') for root in roots])}"
+            f"{RESET_COLOR}"
         )
+    elif not roots and not LOG.error:
+        print(
+            f"{SOLUTION_COLOR}There is no solution{RESET_COLOR}")
