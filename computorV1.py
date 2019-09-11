@@ -6,6 +6,7 @@ from enum import Enum, auto, unique
 
 VERBOSE = False
 SILENT = False
+COLORS = False
 
 RESET_COLOR = "\033[0;0m"
 REDUCED_COLOR = "\033[30;33m"
@@ -17,7 +18,7 @@ SOLUTION_COLOR = "\033[30;32m"
 @dataclass
 class SolutionLog:
     steps: List[str]
-    degree: int = 0
+    degree: str = ""
     reduced: str = ""
     error: str = ""
 
@@ -39,7 +40,7 @@ def get_reduced_form(coeffs_all: dict):
         power = f"^{coeff[0]}" if coeff[0] > 1 else ""
         reduced += f"{sign}{number}{multiplicator}{var}{power}"
     reduced = reduced + " = 0" if reduced else "0 = 0"
-    return reduced
+    return f"Reduced form: {reduced}"
 
 
 def get_number(line: str):
@@ -163,7 +164,7 @@ def solve(raw_code: str):
     LOG.reduced = get_reduced_form(coeffs)
 
     degree = max([k for k, v in coeffs.items() if v] or [0])
-    LOG.degree = degree
+    LOG.degree = f"Polynomial degree: {degree}"
     if degree > 2:
         LOG.error = "The polynomial degree is strictly greater than 2, I can't solve."
         return
@@ -187,10 +188,8 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(
-        description="Arguments and options for ComputorV1")
-    parser.add_argument(
-        "expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
+    parser.add_argument("expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -203,6 +202,9 @@ if __name__ == "__main__":
         action="store_true",
         help="Mutes all notifications except solution and errors. Overwrites --verbose flag.",
     )
+    parser.add_argument(
+        "-c", "--colors", action="store_true", help="Makes output colorful"
+    )
 
     # parsing options and arguments
     args = parser.parse_args()
@@ -210,6 +212,7 @@ if __name__ == "__main__":
     # updating global variables based on input
     VERBOSE = args.verbose and not args.silent
     SILENT = args.silent
+    COLORS = args.colors
 
     # starting evaluation
     roots = solve(args.expression)
@@ -217,21 +220,23 @@ if __name__ == "__main__":
     # printing solution with detailed information if needed
     if not SILENT:
         if LOG.reduced:
-            print(f"Reduced form: {REDUCED_COLOR}{LOG.reduced}{RESET_COLOR}")
-        if LOG.degree:
             print(
-                f"Polynomial degree: {DEGREE_COLOR}{LOG.degree}{RESET_COLOR}")
+                f"{REDUCED_COLOR if COLORS else RESET_COLOR}{LOG.reduced}{RESET_COLOR}"
+            )
+        if LOG.degree:
+            print(f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
     if LOG.error:
-        print(f"{ERROR_COLOR}{LOG.error}{RESET_COLOR}")
+        print(f"{ERROR_COLOR if COLORS else RESET_COLOR}{LOG.error}{RESET_COLOR}")
     if VERBOSE and LOG.steps:
         print(LOG.steps)
     if roots:
         print(
+            f"{SOLUTION_COLOR if COLORS else RESET_COLOR}"
             f"The solution is: "
-            f"{SOLUTION_COLOR}"
             f"{'any real number' if roots[0] == 'any' else ', '.join([f'{root:.6g}'.replace('j', 'i') for root in roots])}"
             f"{RESET_COLOR}"
         )
     elif not roots and not LOG.error:
         print(
-            f"{SOLUTION_COLOR}There is no solution{RESET_COLOR}")
+            f"{SOLUTION_COLOR if COLORS else RESET_COLOR}There is no solution{RESET_COLOR}"
+        )
