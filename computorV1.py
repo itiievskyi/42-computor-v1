@@ -1,8 +1,30 @@
 import argparse
 import re
 from typing import List, Optional
+from dataclasses import dataclass
+from enum import Enum, auto, unique
+
+
+@unique
+class SolutionType(Enum):
+    any_number = auto()
+    no_roots = auto()
+    real_numbers = auto()
+    complex_numbers = auto()
+
+
+@dataclass
+class Solution:
+    """Class for storing result in different formats"""
+
+    roots: List[float or complex]
+    printable: List[str]
+
+    solution_type: SolutionType = SolutionType.real_numbers
+
 
 VERBOSE = False
+FRACTIONS = False
 
 
 def print_reduced_form(coeffs_all: dict):
@@ -101,30 +123,54 @@ def get_discriminant(coeffs: dict) -> int:
         quit("Error during evaluation. Please try again.")
 
 
-def get_incomplete_roots(coeffs: dict) -> List:
+def get_printable_roots(
+    roots: List[complex or float], solution_type: SolutionType
+) -> List[str]:
+    if solution_type == SolutionType.real_numbers:
+        return [str(root) for root in roots]
+    return []
+
+
+def get_incomplete_roots(coeffs: dict) -> Solution:
     a, b, c = coeffs.get(2), coeffs.get(1), coeffs.get(0)
     if a and not b and not c:
-        return [0]
+        roots = [0]
+        return Solution(
+            roots=roots, printable=get_printable_roots(
+                roots, SolutionType.real_numbers)
+        )
     elif a and c and not b:
         if -(c / a) > 0:
-            return [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
+            roots = [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
+            return Solution(
+                roots=roots,
+                printable=get_printable_roots(
+                    roots, SolutionType.real_numbers),
+            )
         else:
             return []
     elif a and b and not c:
         return [0, -b / a]
     elif b and c and not a:
-        return [- c / b]
+        return [-c / b]
     elif b and not a and not c:
         return [0]
+    elif not any([a, b, c]):
+        return ["any number"]
     return []
 
 
 def get_roots(discriminant: int, coeffs: dict) -> List:
-    a, b, c, d = coeffs.get(2), coeffs.get(1), coeffs.get(0), discriminant
-    if discriminant > 0:  # two solutions
+    a, b, d = coeffs.get(2), coeffs.get(1), discriminant
+    if d > 0:  # two solutions
         return [(-b + d ** (1 / 2)) / (2 * a), (-b - d ** (1 / 2)) / (2 * a)]
-    else:
-        return []
+    elif d == 0:  # one solution
+        return [-b / (2 * a)]
+    else:  # two solutions with complex numbers
+        return [
+            complex(-b, abs(d) ** (1 / 2)) / (2 * a),
+            complex(-b, -abs(d) ** (1 / 2)) / (2 * a),
+        ]
 
 
 def solve(raw_code: str):
@@ -144,7 +190,7 @@ def solve(raw_code: str):
 
     roots = []
 
-    if not coeffs.get(0) or not coeffs.get(1) or not coeffs.get(2):
+    if not all([coeffs.get(0), coeffs.get(1), coeffs.get(2)]):
         # specific cases when simpler approach should be used
         roots = get_incomplete_roots(coeffs)
     else:
