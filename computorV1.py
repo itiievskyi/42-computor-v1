@@ -41,14 +41,14 @@ def get_coeffs(code: str) -> Optional[dict]:
         return
 
     token_specification = [
-        ("WRONG_EQUALS", r"^=.*|.*=$"),
+        ("WRONG_EQUALS", r"^=.*|.*=$|=\+|=\*|=\*\*"),
         (
             "EXPR_COEFF",
-            r"(?P<sign0>^|\-|\+|\=){1}((?P<number0>\-?[0-9]+(?P<float0>\.[0-9]+)?){1}((?P<var0>\*?x){1}((\^|\*\*)?(?P<power0>[0-9]+))?)?){1}",
+            r"(?P<sign0>^|\-|\+|\=|\=\-){1}((?P<number0>\-?[0-9]+(?P<float0>\.[0-9]+)?){1}((?P<var0>\*?x){1}((\^|\*\*)?(?P<power0>[0-9]+))?)?){1}",
         ),
         (
             "EXPR_VAR",
-            r"(?P<sign1>^|\-|\+|\=){1}((?P<number1>\-?[0-9]+(?P<float1>\.[0-9]+)?)?((?P<var1>\*?x){1}((\^|\*\*)?(?P<power1>[0-9]+))?){1}){1}",
+            r"(?P<sign1>^|\-|\+|\=|\=\-){1}((?P<number1>\-?[0-9]+(?P<float1>\.[0-9]+)?)?((?P<var1>\*?x){1}((\^|\*\*)?(?P<power1>[0-9]+))?){1}){1}",
         ),
         ("MISMATCH", r"."),  # Any other character
     ]
@@ -58,16 +58,16 @@ def get_coeffs(code: str) -> Optional[dict]:
         value = mo.group()
         valid_tokens = ["EXPR_COEFF", "EXPR_VAR"]
         if kind == "WRONG_EQUALS":
-            print("Equal sign is on the wrong place")
+            print("Syntax error near '='.")
             return
         elif kind in valid_tokens:
-            if mo.group(f"sign{valid_tokens.index(kind)}") == "=":
+            if mo.group(f"sign{valid_tokens.index(kind)}") in ["=", "=-"]:
                 right_side = True
 
             number = get_number(mo.group(f"number{valid_tokens.index(kind)}"))
             if number:
                 sign_multiplicator = (
-                    mo.group(f"sign{valid_tokens.index(kind)}") == "-"
+                    mo.group(f"sign{valid_tokens.index(kind)}") in ["=", "=-"]
                 ) + right_side
                 power = 0
                 if mo.group(f"var{valid_tokens.index(kind)}"):
@@ -111,7 +111,7 @@ def get_incomplete_roots(coeffs: dict) -> List:
         else:
             return []
     elif b and a and not c:
-        return [0, - b / a]
+        return [0, -b / a]
     return []
 
 
@@ -140,7 +140,7 @@ def solve(raw_code: str):
 
     roots = []
 
-    if not coeffs.get(0, 0) or not coeffs.get(1, 0):
+    if not coeffs.get(0) or not coeffs.get(1) or not coeffs.get(2):
         # specific cases when simpler approach should be used
         roots = get_incomplete_roots(coeffs)
     else:
@@ -155,10 +155,8 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(
-        description="Arguments and options for ComputorV1")
-    parser.add_argument(
-        "expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
+    parser.add_argument("expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
