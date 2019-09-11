@@ -103,15 +103,19 @@ def get_discriminant(coeffs: dict) -> int:
 
 def get_incomplete_roots(coeffs: dict) -> List:
     a, b, c = coeffs.get(2), coeffs.get(1), coeffs.get(0)
-    if not b and not c:
+    if a and not b and not c:
         return [0]
-    elif not b and c and a:
+    elif a and c and not b:
         if -(c / a) > 0:
             return [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
         else:
             return []
-    elif b and a and not c:
+    elif a and b and not c:
         return [0, -b / a]
+    elif b and c and not a:
+        return [- c / b]
+    elif b and not a and not c:
+        return [0]
     return []
 
 
