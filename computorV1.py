@@ -181,8 +181,10 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
-    parser.add_argument("expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(
+        description="Arguments and options for ComputorV1")
+    parser.add_argument(
+        "expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -208,6 +210,16 @@ if __name__ == "__main__":
 
     # printing solution with detailed information if needed
 
-    print(
-        f"""The solution is: {', '.join([f'{root:.6g}'.replace('j', 'i') for root in roots])}"""
-    )
+    if not SILENT:
+        if LOG.reduced:
+            print(LOG.reduced)
+        if LOG.degree:
+            print(LOG.degree)
+    if LOG.error:
+        print(LOG.error)
+    if VERBOSE and LOG.steps:
+        print(LOG.steps)
+    if roots:
+        print(
+            f"""The solution is: {', '.join([f'{root:.6g}'.replace('j', 'i') for root in roots])}"""
+        )
