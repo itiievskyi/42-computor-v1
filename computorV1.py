@@ -102,25 +102,23 @@ def get_discriminant(coeffs: dict) -> int:
 
 
 def get_incomplete_roots(coeffs: dict) -> List:
-    if not coeffs.get(1) and not coeffs.get(0):
+    a, b, c = coeffs.get(2), coeffs.get(1), coeffs.get(0)
+    if not b and not c:
         return [0]
-    elif not coeffs.get(1) and coeffs.get(0) and coeffs.get(2):
-        if - (coeffs.get(0) / coeffs.get(2)) > 0:
-            return [
-                (- coeffs.get(0) / coeffs.get(2)) ** (1/2),
-                - (- coeffs.get(0) / coeffs.get(2)) ** (1/2)
-            ]
+    elif not b and c and a:
+        if -(c / a) > 0:
+            return [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
         else:
             return []
+    elif b and a and not c:
+        pass
     return
 
 
 def get_roots(discriminant: int, coeffs: dict) -> List:
+    a, b, c, d = coeffs.get(2), coeffs.get(1), coeffs.get(0), discriminant
     if discriminant > 0:  # two solutions
-        return [
-            (- coeffs[1] + discriminant ** (1/2)) / (2 * coeffs[2]),
-            (- coeffs[1] - discriminant ** (1/2)) / (2 * coeffs[2])
-        ]
+        return [(-b + d ** (1 / 2)) / (2 * a), (-b - d ** (1 / 2)) / (2 * a)]
     else:
         return []
 
@@ -157,10 +155,8 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(
-        description="Arguments and options for ComputorV1")
-    parser.add_argument(
-        "expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
+    parser.add_argument("expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
