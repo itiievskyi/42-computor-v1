@@ -67,7 +67,7 @@ def get_coeffs(code: str) -> Optional[dict]:
             number = get_number(mo.group(f"number{valid_tokens.index(kind)}"))
             if number:
                 sign_multiplicator = (
-                    mo.group(f"sign{valid_tokens.index(kind)}") in ["=", "=-"]
+                    mo.group(f"sign{valid_tokens.index(kind)}") in ["-", "=-"]
                 ) + right_side
                 power = 0
                 if mo.group(f"var{valid_tokens.index(kind)}"):
@@ -155,8 +155,10 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
-    parser.add_argument("expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(
+        description="Arguments and options for ComputorV1")
+    parser.add_argument(
+        "expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
