@@ -131,20 +131,42 @@ def get_incomplete_roots(coeffs: dict) -> List:
     if a and not b and not c:
         LOG.steps.append("Coefficients: a ≠ 0, b = 0, c = 0.")
         LOG.steps.append(
-            "Equation has form ax^2 = 0. The one and only solution is 0.")
+            "Equation has form `ax^2 = 0`. The one and only solution is `0`.")
         return [0]
     elif a and c and not b:
+        LOG.steps.append("Coefficients: a ≠ 0, b = 0, c ≠ 0.")
+        LOG.steps.append(
+            "Equation has form `ax^2 + c = 0`. Checking if `-(c / a)` is positive...")
         if -(c / a) > 0:
+            LOG.steps.append(
+                f"It's positive. The roots are: `±√(-(c / a))` => `±√(-({c} / {a}))`.")
             return [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
         else:
+            LOG.steps.append("It's not positive. There is no valid roots.")
             return []
     elif a and b and not c:
+        LOG.steps.append("Coefficients: a ≠ 0, b ≠ 0, c = 0.")
+        LOG.steps.append(
+            "Equation has form `ax^2 + bx = 0`. It can be transformed into `x(ax + b) = 0`.")
+        LOG.steps.append(
+            f"The roots are `0` and `-(b / a)` => `-({b} / {a})`.")
         return [0, -b / a]
     elif b and c and not a:
+        LOG.steps.append("Coefficients: a = 0, b ≠ 0, c ≠ 0.")
+        LOG.steps.append(
+            "Equation has form `bx + c = 0`, or `bx = c`.")
+        LOG.steps.append(
+            f"It has only one root: `-(c / b)` => `-({c} / {b})`.")
         return [-c / b]
     elif b and not a and not c:
+        LOG.steps.append("Coefficients: a = 0, b ≠ 0, c = 0.")
+        LOG.steps.append(
+            "Equation has form `bx = 0`. The one and only solution is `0`.")
         return [0]
     elif not any([a, b, c]):
+        LOG.steps.append("Coefficients: a = 0, b = 0, c = 0.")
+        LOG.steps.append(
+            "Equation has form `0 = 0`. It means that any real number is the valid root.")
         return ["any"]
     return []
 
