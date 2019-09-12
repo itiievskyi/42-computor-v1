@@ -118,28 +118,33 @@ def get_coeffs(code: str) -> Optional[dict]:
 
 
 def get_discriminant(coeffs: dict) -> Optional[int]:
+    a, b, c = coeffs.get(2), coeffs.get(1), coeffs.get(0)
     try:
-        return coeffs[1] ** 2 - 4 * coeffs[2] * coeffs[0]
-    except KeyError:
+        LOG.steps.append("The equation is complete, calculating discriminant...")
+        LOG.steps.append(f"D = `b^2 - 4ac` => `{b}^2 - 4 * {a} * {c}`")
+        return b ** 2 - 4 * a * c
+    except TypeError:
         LOG.error = "Error during evaluation. Please try again."
 
 
 def get_incomplete_roots(coeffs: dict) -> List:
     a, b, c = coeffs.get(2), coeffs.get(1), coeffs.get(0)
-    LOG.steps.append(
-        "The equation is incomplete, discriminant is not required.")
+    LOG.steps.append("The equation is incomplete, discriminant is not required.")
     if a and not b and not c:
         LOG.steps.append("Coefficients: a ≠ 0, b = 0, c = 0.")
         LOG.steps.append(
-            "Equation has form `ax^2 = 0`. The one and only solution is `0`.")
+            "Equation has form `ax^2 = 0`. The one and only solution is `0`."
+        )
         return [0]
     elif a and c and not b:
         LOG.steps.append("Coefficients: a ≠ 0, b = 0, c ≠ 0.")
         LOG.steps.append(
-            "Equation has form `ax^2 + c = 0`. Checking if `-(c / a)` is positive...")
+            "Equation has form `ax^2 + c = 0`. Checking if `-(c / a)` is positive..."
+        )
         if -(c / a) > 0:
             LOG.steps.append(
-                f"It's positive. The roots are: `±√(-(c / a))` => `±√(-({c} / {a}))`.")
+                f"It's positive. The roots are: `±√(-(c / a))` => `±√(-({c} / {a}))`."
+            )
             return [(-c / a) ** (1 / 2), -(-c / a) ** (1 / 2)]
         else:
             LOG.steps.append("It's not positive. There is no valid roots.")
@@ -147,26 +152,26 @@ def get_incomplete_roots(coeffs: dict) -> List:
     elif a and b and not c:
         LOG.steps.append("Coefficients: a ≠ 0, b ≠ 0, c = 0.")
         LOG.steps.append(
-            "Equation has form `ax^2 + bx = 0`. It can be transformed into `x(ax + b) = 0`.")
-        LOG.steps.append(
-            f"The roots are `0` and `-(b / a)` => `-({b} / {a})`.")
+            "Equation has form `ax^2 + bx = 0`. It can be transformed into `x(ax + b) = 0`."
+        )
+        LOG.steps.append(f"The roots are `0` and `-(b / a)` => `-({b} / {a})`.")
         return [0, -b / a]
     elif b and c and not a:
         LOG.steps.append("Coefficients: a = 0, b ≠ 0, c ≠ 0.")
-        LOG.steps.append(
-            "Equation has form `bx + c = 0`, or `bx = c`.")
-        LOG.steps.append(
-            f"It has only one root: `-(c / b)` => `-({c} / {b})`.")
+        LOG.steps.append("Equation has form `bx + c = 0`, or `bx = c`.")
+        LOG.steps.append(f"It has only one root: `-(c / b)` => `-({c} / {b})`.")
         return [-c / b]
     elif b and not a and not c:
         LOG.steps.append("Coefficients: a = 0, b ≠ 0, c = 0.")
         LOG.steps.append(
-            "Equation has form `bx = 0`. The one and only solution is `0`.")
+            "Equation has form `bx = 0`. The one and only solution is `0`."
+        )
         return [0]
     elif not any([a, b, c]):
         LOG.steps.append("Coefficients: a = 0, b = 0, c = 0.")
         LOG.steps.append(
-            "Equation has form `0 = 0`. It means that any real number is the valid root.")
+            "Equation has form `0 = 0`. It means that any real number is the valid root."
+        )
         return ["any"]
     return []
 
@@ -174,10 +179,22 @@ def get_incomplete_roots(coeffs: dict) -> List:
 def get_roots(discriminant: int, coeffs: dict) -> List:
     a, b, d = coeffs.get(2), coeffs.get(1), discriminant
     if d > 0:  # two solutions
+        LOG.steps.append(f"Discriminant ({d}) > 0, equation has 2 valid roots.")
+        LOG.steps.append(
+            f"The roots are: `(-b ±√D) / 2a` => `(-({b}) ±√{d}) / (2 * {a})`"
+        )
         return [(-b + d ** (1 / 2)) / (2 * a), (-b - d ** (1 / 2)) / (2 * a)]
     elif d == 0:  # one solution
+        LOG.steps.append(f"Discriminant ({d}) = 0, equation has 1 valid root.")
+        LOG.steps.append(f"The root is: `-b / 2a` => `-({b}) / (2 * {a})`")
         return [-b / (2 * a)]
     else:  # two solutions with complex numbers
+        LOG.steps.append(
+            f"Discriminant ({d}) < 0, so equation has no roots among real numbers. But it has two roots among complex numbers."
+        )
+        LOG.steps.append(
+            f"The roots are: `(-b ±i√|D|) / 2a` => `(-({b}) ±(√{abs(d)})i) / (2 * {a})`"
+        )
         return [
             complex(-b, abs(d) ** (1 / 2)) / (2 * a),
             complex(-b, -abs(d) ** (1 / 2)) / (2 * a),
@@ -206,7 +223,7 @@ def solve(raw_code: str) -> List[complex or str or float]:
     else:
         # get discriminant
         discriminant = get_discriminant(coeffs)
-        if not discriminant:
+        if discriminant is None:
             return
         # get roots
         roots = get_roots(discriminant, coeffs)
@@ -217,10 +234,8 @@ def solve(raw_code: str) -> List[complex or str or float]:
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(
-        description="Arguments and options for ComputorV1")
-    parser.add_argument(
-        "expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
+    parser.add_argument("expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -262,15 +277,18 @@ if __name__ == "__main__":
                 f"{REDUCED_COLOR if COLORS else RESET_COLOR}{LOG.reduced}{RESET_COLOR}"
             )
         if LOG.degree:
-            print(
-                f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
+            print(f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
     if LOG.error:
         print(f"{ERROR_COLOR if COLORS else RESET_COLOR}{LOG.error}{RESET_COLOR}")
     if VERBOSE and LOG.steps:
         print(f"{STEPS_COLOR if COLORS else RESET_COLOR}Steps:{RESET_COLOR}")
         for i in range(len(LOG.steps)):
-            print(STEPS_COLOR if COLORS else RESET_COLOR,
-                  f"{i + 1}.", LOG.steps[i], RESET_COLOR)
+            print(
+                STEPS_COLOR if COLORS else RESET_COLOR,
+                f"{i + 1}.",
+                LOG.steps[i],
+                RESET_COLOR,
+            )
     if roots:
         print(
             f"{SOLUTION_COLOR if COLORS else RESET_COLOR}"
