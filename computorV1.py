@@ -126,7 +126,12 @@ def get_discriminant(coeffs: dict) -> Optional[int]:
 
 def get_incomplete_roots(coeffs: dict) -> List:
     a, b, c = coeffs.get(2), coeffs.get(1), coeffs.get(0)
+    LOG.steps.append(
+        "The equation is incomplete, discriminant is not required.")
     if a and not b and not c:
+        LOG.steps.append("Coefficients: a ≠ 0, b = 0, c = 0.")
+        LOG.steps.append(
+            "Equation has form ax^2 = 0. The one and only solution is 0.")
         return [0]
     elif a and c and not b:
         if -(c / a) > 0:
@@ -157,7 +162,7 @@ def get_roots(discriminant: int, coeffs: dict) -> List:
         ]
 
 
-def solve(raw_code: str):
+def solve(raw_code: str) -> List[complex or str or float]:
     code = raw_code.lower().replace(" ", "")
     coeffs = get_coeffs(code)
     if not coeffs:
@@ -190,8 +195,10 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
-    parser.add_argument("expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(
+        description="Arguments and options for ComputorV1")
+    parser.add_argument(
+        "expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -233,11 +240,15 @@ if __name__ == "__main__":
                 f"{REDUCED_COLOR if COLORS else RESET_COLOR}{LOG.reduced}{RESET_COLOR}"
             )
         if LOG.degree:
-            print(f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
+            print(
+                f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
     if LOG.error:
         print(f"{ERROR_COLOR if COLORS else RESET_COLOR}{LOG.error}{RESET_COLOR}")
     if VERBOSE and LOG.steps:
-        print(f"{ERROR_COLOR if COLORS else STEPS_COLOR}{LOG.steps}{RESET_COLOR}")
+        print(f"{STEPS_COLOR if COLORS else RESET_COLOR}Steps:{RESET_COLOR}")
+        for i in range(len(LOG.steps)):
+            print(STEPS_COLOR if COLORS else RESET_COLOR,
+                  f"{i + 1}.", LOG.steps[i], RESET_COLOR)
     if roots:
         print(
             f"{SOLUTION_COLOR if COLORS else RESET_COLOR}"
