@@ -7,6 +7,7 @@ from enum import Enum, auto, unique
 VERBOSE = False
 SILENT = False
 COLORS = False
+REVERSE = False
 
 RESET_COLOR = "\033[0;0m"
 REDUCED_COLOR = "\033[30;33m"
@@ -113,7 +114,7 @@ def get_coeffs(code: str) -> Optional[dict]:
         if not coeffs.get(x):
             coeffs[x] = 0
 
-    return dict(sorted({k: v for k, v in coeffs.items()}.items()))
+    return dict(sorted({k: v for k, v in coeffs.items()}.items(), reverse=REVERSE))
 
 
 def get_discriminant(coeffs: dict) -> Optional[int]:
@@ -189,10 +190,8 @@ def solve(raw_code: str):
 if __name__ == "__main__":
     """Entry point"""
     # setting a parser
-    parser = argparse.ArgumentParser(
-        description="Arguments and options for ComputorV1")
-    parser.add_argument(
-        "expression", help="expression to be evaluated", type=str)
+    parser = argparse.ArgumentParser(description="Arguments and options for ComputorV1")
+    parser.add_argument("expression", help="expression to be evaluated", type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -206,6 +205,12 @@ if __name__ == "__main__":
         help="Mutes all notifications except solution and errors. Overwrites --verbose flag.",
     )
     parser.add_argument(
+        "-r",
+        "--reverse",
+        action="store_true",
+        help="Displays reduced form of equation in standard way: from highest degree to lowest. False by default.",
+    )
+    parser.add_argument(
         "-c", "--colors", action="store_true", help="Makes output colorful"
     )
 
@@ -216,6 +221,7 @@ if __name__ == "__main__":
     VERBOSE = args.verbose and not args.silent
     SILENT = args.silent
     COLORS = args.colors
+    REVERSE = args.reverse
 
     # starting evaluation
     roots = solve(args.expression)
@@ -227,8 +233,7 @@ if __name__ == "__main__":
                 f"{REDUCED_COLOR if COLORS else RESET_COLOR}{LOG.reduced}{RESET_COLOR}"
             )
         if LOG.degree:
-            print(
-                f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
+            print(f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
     if LOG.error:
         print(f"{ERROR_COLOR if COLORS else RESET_COLOR}{LOG.error}{RESET_COLOR}")
     if VERBOSE and LOG.steps:
