@@ -16,6 +16,8 @@ ERROR_COLOR = "\033[30;31m"
 SOLUTION_COLOR = "\033[30;32m"
 STEPS_COLOR = "\033[30;1m"
 
+ROUND_NUM = 6
+
 
 @dataclass
 class SolutionLog:
@@ -212,6 +214,10 @@ def get_roots(discriminant: int, coeffs: dict) -> List:
         ]
 
 
+def rounded(root):
+    return round(root, ROUND_NUM) if type(root) == float else root
+
+
 def solve(raw_code: str) -> List[complex or str or float]:
     code = raw_code.lower().replace(" ", "")
     coeffs = get_coeffs(code)
@@ -231,13 +237,16 @@ def solve(raw_code: str) -> List[complex or str or float]:
     if not all([coeffs.get(0), coeffs.get(1), coeffs.get(2)]):
         # specific cases when simpler approach should be used
         roots = get_incomplete_roots(coeffs)
+        return [rounded(root) for root in roots]
     else:
         # get discriminant
         discriminant = get_discriminant(coeffs)
         if discriminant is None:
-            return
+            return []
         # get roots
         roots = get_roots(discriminant, coeffs)
+        print([rounded(root) for root in roots])
+        return [rounded(root) for root in roots]
 
     return roots
 

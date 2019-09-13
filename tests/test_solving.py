@@ -30,3 +30,9 @@ def test_solving():
     assert not LOG.error
 
     assert solve("2x2 = -4 + x2 + x^2") == []
+
+
+def test_task_examples():
+    assert solve("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0") == [-0.475131, 0.905239]
+    assert solve("5 * X^0 + 4 * X^1 = 4 * X^0") == [-0.25]
+    assert solve("5 + 4 * X + X^2= X^2") == [-1.25]
