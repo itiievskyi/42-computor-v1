@@ -26,3 +26,5 @@ def test_solving():
     assert solve("x2 - 6x + 34 = 0") == [3+5j, 3-5j]
 
     assert not LOG.error
+
+    assert solve("2x2 = -4 + x2 + x^2") == []
