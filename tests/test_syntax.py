@@ -1,5 +1,6 @@
-from computorV1 import get_coeffs, LOG
 import sys
+
+from computorV1 import LOG, get_coeffs
 
 sys.path.append("..")
 
@@ -70,3 +71,11 @@ def test_syntax_errors():
     result = get_coeffs("x*x2 = 9")
     assert not result
     assert LOG.error == "Syntax error! Unexpected value: '*'"
+
+    result = get_coeffs("x2.1 = 9 - 1")
+    assert not result
+    assert LOG.error == "Syntax error! Unexpected value: '.'"
+
+    result = get_coeffs("2.1x2 = 9. - 1")
+    assert not result
+    assert LOG.error == "Syntax error! Unexpected value: '.'"

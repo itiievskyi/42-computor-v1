@@ -28,7 +28,7 @@ class SolutionLog:
 LOG = SolutionLog(steps=[])
 
 
-def get_reduced_form(coeffs_all: dict):
+def get_reduced_form(coeffs_all: dict) -> str:
     reduced = ""
     # filtering for correct output
     coeffs = [item for item in coeffs_all.items() if item[1] != 0]
@@ -42,10 +42,10 @@ def get_reduced_form(coeffs_all: dict):
         power = f"^{coeff[0]}" if coeff[0] > 1 else ""
         reduced += f"{sign}{number}{multiplicator}{var}{power}"
     reduced = reduced + " = 0" if reduced else "0 = 0"
-    return f"Reduced form: {reduced}"
+    return reduced
 
 
-def get_number(line: str):
+def get_number(line: str) -> float or int:
     if not line:
         return 1
     elif "." in line:
@@ -184,6 +184,10 @@ def get_incomplete_roots(coeffs: dict) -> List:
             "Equation has form `0 = 0`. It means that any real number is the valid root."
         )
         return ["any"]
+    LOG.steps.append("Coefficients: a = 0, b = 0, c ≠ 0.")
+    LOG.steps.append(
+        "Equation has form `c = 0`. It's always false so equation is not solvable."
+    )
     return []
 
 
@@ -288,7 +292,7 @@ if __name__ == "__main__":
     if not SILENT:
         if LOG.reduced:
             print(
-                f"{REDUCED_COLOR if COLORS else RESET_COLOR}{LOG.reduced}{RESET_COLOR}"
+                f"{REDUCED_COLOR if COLORS else RESET_COLOR}Reduced form: {LOG.reduced}{RESET_COLOR}"
             )
         if LOG.degree:
             print(
