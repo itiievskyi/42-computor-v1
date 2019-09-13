@@ -36,3 +36,18 @@ def test_task_examples():
     assert solve("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0") == [-0.475131, 0.905239]
     assert solve("5 * X^0 + 4 * X^1 = 4 * X^0") == [-0.25]
     assert solve("5 + 4 * X + X^2= X^2") == [-1.25]
+
+
+def test_additional_examples():
+    assert solve("5 * X^0 = 5 * X^0") == ["any"]
+    assert solve("4 * X^0 = 8 * X^0") == []
+    assert solve("5 * X^0 = 4 * X^0 + 7 * X^1") == [0.142857]
+    assert solve("5 * X^0 + 13 * x^1 + 3 * X^2 = 1 * X^0 + 1 * X^1") == [
+        -0.367007,
+        -3.632993,
+    ]
+    assert solve("6 * X^0 + 11 * x^1 + 5 * X^2 = 1 * X^0 + 1 * X^1") == [-1]
+    assert solve("5 * X^0 + 3 * x^1 + 3 * X^2 = 1 * X^0 + 1 * X^1") == [
+        -0.333333 + 1.105542j,
+        -0.333333 - 1.105542j,
+    ]

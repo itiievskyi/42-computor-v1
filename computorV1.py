@@ -25,6 +25,7 @@ class SolutionLog:
     degree: str = ""
     reduced: str = ""
     error: str = ""
+    discriminant: str = ""
 
 
 LOG = SolutionLog(steps=[])
@@ -192,19 +193,20 @@ def get_incomplete_roots(coeffs: dict) -> List:
 def get_roots(discriminant: int, coeffs: dict) -> List:
     a, b, d = coeffs.get(2), coeffs.get(1), discriminant
     if d > 0:  # two solutions
-        LOG.steps.append(f"Discriminant ({d}) > 0, equation has 2 valid roots.")
+        LOG.discriminant = f"Discriminant ({d}) > 0, equation has 2 valid roots."
+        LOG.steps.append(LOG.discriminant)
         LOG.steps.append(
             f"The roots are: `(-b ±√D) / 2a` => `(-({b}) ±√{d}) / (2 * {a})`"
         )
         return [(-b + d ** (1 / 2)) / (2 * a), (-b - d ** (1 / 2)) / (2 * a)]
     elif d == 0:  # one solution
-        LOG.steps.append(f"Discriminant ({d}) = 0, equation has 1 valid root.")
+        LOG.discriminant = f"Discriminant ({d}) = 0, equation has 1 valid root."
+        LOG.steps.append(LOG.discriminant)
         LOG.steps.append(f"The root is: `-b / 2a` => `-({b}) / (2 * {a})`")
         return [-b / (2 * a)]
     else:  # two solutions with complex numbers
-        LOG.steps.append(
-            f"Discriminant ({d}) < 0, so equation has no roots among real numbers. But it has two roots among complex numbers."
-        )
+        LOG.discriminant = f"Discriminant ({d}) < 0, so equation has no roots among real numbers. But it has two roots among complex numbers."
+        LOG.steps.append(LOG.discriminant)
         LOG.steps.append(
             f"The roots are: `(-b ±i√|D|) / 2a` => `(-({b}) ±(√{abs(d)})i) / (2 * {a})`"
         )
@@ -215,7 +217,12 @@ def get_roots(discriminant: int, coeffs: dict) -> List:
 
 
 def rounded(root):
-    return round(root, ROUND_NUM) if type(root) == float else root
+    """Round floats and both real and imaginary parts of complex numbers"""
+    if type(root) == float:
+        return round(root, ROUND_NUM)
+    elif type(root) == complex:
+        return complex(round(root.real, ROUND_NUM), round(root.imag, ROUND_NUM))
+    return root
 
 
 def solve(raw_code: str) -> List[complex or str or float]:
@@ -227,7 +234,7 @@ def solve(raw_code: str) -> List[complex or str or float]:
     LOG.reduced = get_reduced_form(coeffs)
 
     degree = max([k for k, v in coeffs.items() if v] or [0])
-    LOG.degree = f"Polynomial degree: {degree}"
+    LOG.degree = f"{degree}"
     if degree > 2:
         LOG.error = "The polynomial degree is strictly greater than 2, I can't solve."
         return
@@ -245,7 +252,6 @@ def solve(raw_code: str) -> List[complex or str or float]:
             return []
         # get roots
         roots = get_roots(discriminant, coeffs)
-        print([rounded(root) for root in roots])
         return [rounded(root) for root in roots]
 
     return roots
@@ -297,7 +303,9 @@ if __name__ == "__main__":
                 f"{REDUCED_COLOR if COLORS else RESET_COLOR}Reduced form: {LOG.reduced}{RESET_COLOR}"
             )
         if LOG.degree:
-            print(f"{DEGREE_COLOR if COLORS else RESET_COLOR}{LOG.degree}{RESET_COLOR}")
+            print(
+                f"{DEGREE_COLOR if COLORS else RESET_COLOR}Polynomial degree: {LOG.degree}{RESET_COLOR}"
+            )
     if LOG.error:
         print(f"{ERROR_COLOR if COLORS else RESET_COLOR}{LOG.error}{RESET_COLOR}")
     if VERBOSE and LOG.steps:
@@ -309,6 +317,10 @@ if __name__ == "__main__":
                 LOG.steps[i],
                 RESET_COLOR,
             )
+    elif not VERBOSE and not SILENT and LOG.discriminant:
+        print(
+            f"{STEPS_COLOR if COLORS else RESET_COLOR}{LOG.discriminant}{RESET_COLOR}"
+        )
     if roots:
         print(
             f"{SOLUTION_COLOR if COLORS else RESET_COLOR}"
