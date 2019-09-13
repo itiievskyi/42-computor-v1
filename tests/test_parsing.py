@@ -1,6 +1,6 @@
 import sys
 
-from computorV1 import LOG, REVERSE, get_coeffs, get_reduced_form
+from computorV1 import LOG, get_coeffs, get_reduced_form
 
 sys.path.append("..")
 
